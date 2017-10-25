@@ -2,10 +2,12 @@
  * Takes input from circuit to determine speed of metronome and beats along to it
  */
 
-const int PIN_GATE_IN = 2;
+//const int PIN_GATE_IN = 2;
 //const int IRQ_GATE_IN = 1;
 //const int PIN_ANALOG_IN = A0;
-int pin_val = 0;
+//int pin_val = 0;
+
+int t1, t2 = 0;
 
 int striketime = 200; // the length of time the motor will be on
 int resttime = 800; // the length of rest between strikes
@@ -15,15 +17,19 @@ int rhythm = 0; //original rhythm to play with no user input
 
 //function to make a hit
 void beat(int pin, int st, int rt){ 
-  digitalWrite(m1, HIGH); //turns motor on
-  delay(st); //how long hit
-    
-  digitalWrite(m1, LOW); // turns motor off
-  delay(rt); // how long delay before next hit
+  t2 = millis();
+ 
+  while(t2-t1 <= st)
+    digitalWrite(m1, HIGH); //turns motor on
+  t1 = t2; 
+
+  while(t2-t1 <= rt)
+    digitalWrite(m1, LOW); // turns motor off
+  t1 = t2;
 }
 
 void setup() {
-  pinMode(PIN_GATE_IN, INPUT);
+  //pinMode(PIN_GATE_IN, INPUT);
   //attachInterrupt(IRQ_GATE_IN, soundISR, CHANGE);
   
   pinMode(m1, OUTPUT); // set the output pins
@@ -31,8 +37,8 @@ void setup() {
 }
 
 void loop() {
-  pin_val = digitalRead(PIN_GATE_IN);
-  Serial.println(pin_val);
+  //pin_val = digitalRead(PIN_GATE_IN);
+  //Serial.println(pin_val);
   
   if(Serial.available() > 0){ //if serial value is input, read it
     rhythm = Serial.read()-'0'; // make byte read from Serial into the actual in it is
