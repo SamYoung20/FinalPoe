@@ -18,13 +18,19 @@ int rhythm = 0; //original rhythm to play with no user input
 //function to make a hit
 void beat(int pin, int st, int rt){ 
   t2 = millis();
+  Serial.print(t2-t1);
  
-  while(t2-t1 <= st)
+  while(t2-t1 <= st){
     digitalWrite(m1, HIGH); //turns motor on
+    t2 = millis();
+  }
   t1 = t2; 
 
-  while(t2-t1 <= rt)
+  t2 = millis();
+  while(t2-t1 <= rt){
     digitalWrite(m1, LOW); // turns motor off
+    t2 = millis();
+  }
   t1 = t2;
 }
 
@@ -43,8 +49,10 @@ void loop() {
   if(Serial.available() > 0){ //if serial value is input, read it
     rhythm = Serial.read()-'0'; // make byte read from Serial into the actual in it is
     //Serial.print(rhythm);
+  //
+  
   }
-    
+
   switch(rhythm){ //switches between 7 different rhythms depending on what variable rhythm equals
     case 0: //quarter notes
       beat(m1, 200, 800);
