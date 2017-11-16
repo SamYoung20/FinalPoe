@@ -5,19 +5,10 @@
 
 char state = 'o'; //determines whether to look for beat or not
 
-const int beat_pin = 2; //looks for pulse to find period fo beat
-//const int IRQ_GATE_IN = 1;
-//const int PIN_ANALOG_IN = A0;
 int bpm = 60;
-
-int pin_val = 0; //reading from beat_pin
+float period = 1000; //length of period, found from beat detection
 
 int t1, t2 = 0; //time variable to avoid use of delays
-
-int striketime = 200; // the length of time the motor will be on
-int resttime = 800; // the length of rest between strikes
-float period = 1000; //length of period, found from beat detection
-float error = 0;
 
 float st_quarter, rt_quarter = 0; //strike time and rest time quarter note length from period
 const int m1 = 8; //motor pin
@@ -41,83 +32,13 @@ void beat(int pin, int st, int rt){
   t1 = t2;
 }
 
-void absolute(long x){
-  if(x<0){
-    x = -x;
-  }
-  else{
-    x = x;
-  }
-}
-
-//function to find period from beat detection 
-void findPeriod(){
-  Serial.println("In findPeriod");
-  long avgPeriod = 0;
-  for(int i = 1; i<=8; i++){
-    Serial.println(i);
-    pin_val = digitalRead(beat_pin); //beat detection reading
-    
-    long dur_on = pulseIn(beat_pin, HIGH, 3000000); //duration beat sounds
-    Serial.println(dur_on);
-    absolute(dur_on);
-    Serial.println(dur_on);
-    
-    long dur_off = pulseIn(beat_pin, LOW, 3000000); //duration between beats
-    absolute(dur_off);
-
-    period = period + dur_on + dur_off; //total period (all together) to allow for averaging
-    Serial.println(period);
-    avgPeriod = period/long(i); //averags to find period
-    Serial.println(avgPeriod);
-
-  }
-
-  period = avgPeriod/1000.0; //finds period
-  Serial.println(period);
-  error = .0051*period;
-  Serial.println(error);
-  period += error;
-  Serial.println(period, 7);
-//  bpm = 60000/period;
-//  bpm = int(bpm);
-//  period = float(60000)/float(bpm);
-//  Serial.println(period);
-  
-
-  t1 = millis();
-  t2 = millis();
-  //for quarter note: period*3.53 + 2*period/3 - 50
-  //for eighth note: period*3.53
-  while(t2-t1 <= period*3.53 + 2*period/3 - 50){ //2300 for 92bpm
-    t2 = millis();
-  }
-}
 
 void setup() {
-  //pinMode(PIN_GATE_IN, INPUT);
-  //attachInterrupt(IRQ_GATE_IN, soundISR, CHANGE);
-
   pinMode(m1, OUTPUT); // set the output pins
   Serial.begin(9600);
-  //findPeriod();
 }
 
 void loop() {
-//  if(Serial.available() > 0){ //if serial value is input, read it
-//    rhythm = Serial.read()-'0'; // make byte read from Serial into the actual in it is
-//    Serial.print(rhythm);
-//  }
-
-   
-  if(Serial.available() > 0) { //checks for input from Serial
-    state = Serial.read(); //0 or 1
-    Serial.write(state);
-    if(state == 'f'){ //finds beat if type 'f'
-      findPeriod();
-    }
-  } 
-
   Serial.println(period);
   bpm = 60000/period;
 
@@ -140,16 +61,6 @@ void loop() {
   Serial.println(st_quarter);
   Serial.println(rt_quarter);
 
-  //Serial.println(st_quarter);
-  //Serial.println(rt_quarter);
-
-//  beat(m1, st_quarter, rt_quarter);
-//  beat(m1, st_quarter/2, rt_quarter/2);
-//  beat(m1, st_quarter/2, rt_quarter/2);
-
-  
-  
-  
   switch(rhythm){ //switches between 7 different rhythms depending on what variable rhythm equals
     case 0: //quarter notes
       Serial.println("Case 0");

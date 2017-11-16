@@ -17,18 +17,32 @@ int t1, t2 = 0; //time variable to avoid use of delays
 int striketime = 200; // the length of time the motor will be on
 int resttime = 800; // the length of rest between strikes
 float period = 1000; //length of period, found from beat detection
-float error = 0;
 
 float st_quarter, rt_quarter = 0; //strike time and rest time quarter note length from period
 const int m1 = 8; //motor pin
 int rhythm = 0; //original rhythm to play with no user input
+
+int ontime = 5; // the length of time the motor will be on
+int offtime = 8; // the length of rest between strikes
+
+void wait(int t){
+  t2 = millis();
+  while(t2-t1 <= t){ //turns motor off for length of rt
+    t2 = millis();
+  }
+  t1 = t2;
+}
 
 //function to make a hit
 void beat(int pin, int st, int rt){ 
   //t1 and t2 used to avoid use of delay
   t2 = millis();
   while(t2-t1 <= st){ //turns motor on for length of st
-    digitalWrite(m1, HIGH); //turns motor on
+    digitalWrite(8, HIGH); // turn on motor 1
+    wait(ontime);
+    digitalWrite(8, LOW); // turn off motor 1
+    wait(offtime); // wait
+    //digitalWrite(m1, HIGH); //turns motor on
     t2 = millis();
   }
   t1 = t2; 
@@ -74,15 +88,10 @@ void findPeriod(){
   }
 
   period = avgPeriod/1000.0; //finds period
+  bpm = 60000/period;
+  bpm = int(bpm);
+  period = float(60000)/float(bpm);
   Serial.println(period);
-  error = .0051*period;
-  Serial.println(error);
-  period += error;
-  Serial.println(period, 7);
-//  bpm = 60000/period;
-//  bpm = int(bpm);
-//  period = float(60000)/float(bpm);
-//  Serial.println(period);
   
 
   t1 = millis();
@@ -140,8 +149,6 @@ void loop() {
   Serial.println(st_quarter);
   Serial.println(rt_quarter);
 
-  //Serial.println(st_quarter);
-  //Serial.println(rt_quarter);
 
 //  beat(m1, st_quarter, rt_quarter);
 //  beat(m1, st_quarter/2, rt_quarter/2);
