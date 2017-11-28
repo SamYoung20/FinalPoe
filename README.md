@@ -1,4 +1,4 @@
-# FinalPoe
+# OffBeat by GEECS
 Gretchen, Elena, Emma, Colvin, and Sam's Final POE project
 
 
