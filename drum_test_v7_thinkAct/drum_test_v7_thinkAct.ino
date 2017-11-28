@@ -1,6 +1,7 @@
 /**
  * Takes input from circuit to determine speed of metronome and beats along to it
  * Preset rhythms, some random logic to determine which rhythm to play
+ * Uses the encoder motor to move
  */
 #include <SoftwareSerial.h>
 #include <Wire.h>
@@ -10,7 +11,7 @@
 SoftwareSerial mySerial(11, 10);
 Adafruit_MotorShield AFMS = Adafruit_MotorShield(); 
 
-Adafruit_DCMotor *m = AFMS.getMotor(1);
+Adafruit_DCMotor *m = AFMS.getMotor(1); //creates motor
 
 
 char state = 'o'; //determines whether to look for beat or not
@@ -21,7 +22,6 @@ float period = 1000; //length of period, found from beat detection
 int t1, t2 = 0; //time variable to avoid use of delays
 
 float st_quarter, rt_quarter = 0; //strike time and rest time quarter note length from period
-const int m1 = 8; //motor pin
 int rhythm = 0; //original rhythm to play with no user input
 
 int encoder0PinA = 3; //yellow wire/pin A pin
@@ -36,7 +36,8 @@ int targetDown = -100; //target position going down
 
 
 //function to make a hit
-void beat(int pin, int st, int rt){ 
+void beat(int pin, int st, int rt){
+  //this while loor runs motor up until hits encoder value 
   while(encoder0Pos < targetUp){
     n = digitalRead(encoder0PinA);
     if ((encoder0PinALast == LOW) && (n == HIGH)) {
@@ -53,6 +54,7 @@ void beat(int pin, int st, int rt){
     m->run(FORWARD);
   }
 
+  //wait a certain amount of time before going down
   t2 = millis();
   while(t2-t1 <= st){ //turns motor off for length of rt
     m->run(RELEASE); // turns motor off
@@ -60,6 +62,7 @@ void beat(int pin, int st, int rt){
   }
   t1 = t2;
 
+  //this while loor runs motor down until hits encoder value 
   while(encoder0Pos > targetDown){
     n = digitalRead(encoder0PinA);
     if ((encoder0PinALast == LOW) && (n == HIGH)) {
@@ -76,6 +79,7 @@ void beat(int pin, int st, int rt){
     m->run(BACKWARD);
   }
 
+  //wait a certain amount of time before go back up
   t2 = millis();
   while(t2-t1 <= rt){ //turns motor off for length of rt
     m->run(RELEASE); // turns motor off
@@ -86,7 +90,6 @@ void beat(int pin, int st, int rt){
 
 
 void setup() {
-  pinMode(m1, OUTPUT); // set the output pins
   Serial.begin(9600);
   mySerial.begin(4800);
 }
