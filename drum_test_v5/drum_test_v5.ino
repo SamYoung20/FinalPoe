@@ -6,8 +6,6 @@
 char state = 'o'; //determines whether to look for beat or not
 
 const int beat_pin = 2; //looks for pulse to find period fo beat
-//const int IRQ_GATE_IN = 1;
-//const int PIN_ANALOG_IN = A0;
 int bpm = 60;
 
 int pin_val = 0; //reading from beat_pin
@@ -104,21 +102,12 @@ void findPeriod(){
 }
 
 void setup() {
-  //pinMode(PIN_GATE_IN, INPUT);
-  //attachInterrupt(IRQ_GATE_IN, soundISR, CHANGE);
-
   pinMode(m1, OUTPUT); // set the output pins
   Serial.begin(9600);
   //findPeriod();
 }
 
 void loop() {
-//  if(Serial.available() > 0){ //if serial value is input, read it
-//    rhythm = Serial.read()-'0'; // make byte read from Serial into the actual in it is
-//    Serial.print(rhythm);
-//  }
-
-   
   if(Serial.available() > 0) { //checks for input from Serial
     state = Serial.read(); //0 or 1
     Serial.write(state);
@@ -148,13 +137,7 @@ void loop() {
 
   Serial.println(st_quarter);
   Serial.println(rt_quarter);
-
-
-//  beat(m1, st_quarter, rt_quarter);
-//  beat(m1, st_quarter/2, rt_quarter/2);
-//  beat(m1, st_quarter/2, rt_quarter/2);
-
-  
+ 
   
   
   switch(rhythm){ //switches between 7 different rhythms depending on what variable rhythm equals

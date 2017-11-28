@@ -2,6 +2,10 @@
  * Takes input from circuit to determine speed of metronome and beats along to it
  * Preset rhythms, some random logic to determine which rhythm to play
  */
+#include <SoftwareSerial.h>
+
+SoftwareSerial mySerial(11, 10);
+
 
 char state = 'o'; //determines whether to look for beat or not
 
@@ -36,24 +40,41 @@ void beat(int pin, int st, int rt){
 void setup() {
   pinMode(m1, OUTPUT); // set the output pins
   Serial.begin(9600);
+  mySerial.begin(4800);
 }
 
 void loop() {
-  Serial.println(period);
-  bpm = 60000/period;
 
-  if(bpm <=80){
-    rhythm = 7;
+  if(mySerial.available() > 0){ //if serial value is input, read it
+    Serial.println("Receiving");
+    bpm = mySerial.read();
+    period = float(60000)/float(bpm);
+    Serial.println("****************************");
+
+
+//    t1 = millis();
+//    t2 = millis();
+//    //for quarter note: period*3.53 + 2*period/3 - 50
+//    //for eighth note: period*3.53
+//    while(t2-t1 <= period){ //*3.53 + 2*period/3 - 50){ //2300 for 92bpm
+//      t2 = millis();
+//    }
   }
-  else if(bpm <= 100 && bpm >= 80){
-    rhythm = 1;
-  }
-  else if(bpm>=100 && bpm <= 130){
-    rhythm = 1;
-  }
-  else if(bpm>=130){
-    rhythm = 7;
-  }
+  //Serial.println(period);
+
+  rhythm = 0;
+//  if(bpm <=80){
+//    rhythm = 7;
+//  }
+//  else if(bpm <= 100 && bpm >= 80){
+//    rhythm = 0;
+//  }
+//  else if(bpm>=100 && bpm <= 130){
+//    rhythm = 0;
+//  }
+//  else if(bpm>=130){
+//    rhythm = 7;
+//  }
   
   st_quarter = float(.2)*float(period);
   rt_quarter = float(.8)*float(period);
@@ -63,17 +84,17 @@ void loop() {
 
   switch(rhythm){ //switches between 7 different rhythms depending on what variable rhythm equals
     case 0: //quarter notes
-      Serial.println("Case 0");
+      //Serial.println("Case 0");
       beat(m1, st_quarter, rt_quarter);
       break;
 
     case 1: //eigth notes
-      Serial.println("Case 1");
+      //Serial.println("Case 1");
       beat(m1, st_quarter/2, rt_quarter/2);
       break;
 
     case 2: //sixteenth notes
-      Serial.println("Case 2");
+      //Serial.println("Case 2");
       beat(m1, st_quarter/4, rt_quarter/4);
       break;
 
