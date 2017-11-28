@@ -33,4 +33,11 @@ Gretchen, Elena, Emma, Colvin, and Sam's Final POE project
 
   
 #### *Version 6*
-  This version is the first to use two Arduinos. This should allow us to listen to a beat while playing. The "Sense" Arduino does the listening and determines the period. The "Think/Act" Arduino determines the bpm from the period it is sent from the "Sense" Arduino and tells the drummer to play. **This code works with the first version of the mechanical system.**   
+  This version is the first to use two Arduinos. This should allow us to listen to a beat while playing. The "Sense" Arduino does the listening and determines the period. The "Think/Act" Arduino determines the bpm from the period it is sent from the "Sense" Arduino and tells the drummer to play. **This code works with the first version of the mechanical system.** 
+  
+  
+  
+  
+#### *Version 7*
+  This version has updated Think code so that it can drive the encoder motor **This code works with the third version of the mechanical system.**
+  
