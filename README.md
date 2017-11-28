@@ -38,5 +38,6 @@ Gretchen, Elena, Emma, Colvin, and Sam's Final POE project
   
   
   
-  #### *Version 7*
-    This version has updated Think code so that it can drive the motor with the encoder. **This code works with the third version of the mechanical system.** 
+#### *Version 7*
+  This version has updated Think code so that it can drive the encoder motor **This code works with the third version of the mechanical system.**
+  
