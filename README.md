@@ -3,7 +3,7 @@ Gretchen, Elena, Emma, Colvin, and Sam's Final POE project
 
 
 #### *Version 1*
-  This is the first version of the code written. This version was used to make sure we could turn our motors on for a certain amount of tie and then release them for a certain amount of time. With a rubber badn, this allowed us to beat a constant beat. **This code works with the first version of the mechanical system.**\s\s
+  This is the first version of the code written. This version was used to make sure we could turn our motors on for a certain amount of tie and then release them for a certain amount of time. With a rubber badn, this allowed us to beat a constant beat. **This code works with the first version of the mechanical system.**/s/s
 
 
 
