@@ -18,6 +18,8 @@ int pin_val = 0; //reading from beat_pin
 
 int t1, t2 = 0; //time variable to avoid use of delays
 
+int lis = 2; //how many beats should listen for
+
 
 void absolute(long x){
   if(x<0){
@@ -32,17 +34,17 @@ void absolute(long x){
 void findPeriod(){
   Serial.println("In findPeriod");
   long avgPeriod = 0;
-  for(int i = 1; i<=2; i++){
+  for(int i = 1; i<=lis; i++){
     Serial.println(i);
     pin_val = digitalRead(beat_pin); //beat detection reading
     
     long dur_on = pulseIn(beat_pin, HIGH, 3000000); //duration beat sounds
-    Serial.println(dur_on);
     absolute(dur_on);
     Serial.println(dur_on);
     
     long dur_off = pulseIn(beat_pin, LOW, 3000000); //duration between beats
     absolute(dur_off);
+    Serial.println(dur_off);
 
     period = period + dur_on + dur_off; //total period (all together) to allow for averaging
     Serial.println(period);
@@ -81,15 +83,15 @@ void loop() {
     }
   } 
 
-//  t1 = millis();
-//  t2 = millis();
-//  while(t2-t1 <= 5000){
-//    t2 = millis();
-//  }
-//
-//  findPeriod();
-//  bpm = 60000/period;
-//  mySerial.write(bpm);
+  t1 = millis();
+  t2 = millis();
+  while(t2-t1 <= 10000){
+    t2 = millis();
+  }
+
+  findPeriod();
+  bpm = 60000/period;
+  mySerial.write(bpm);
 
   Serial.println(bpm);
   //bpm = 60000/period;

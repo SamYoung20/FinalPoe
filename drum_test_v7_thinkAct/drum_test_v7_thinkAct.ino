@@ -11,7 +11,8 @@
 SoftwareSerial mySerial(11, 10);
 Adafruit_MotorShield AFMS = Adafruit_MotorShield(); 
 
-Adafruit_DCMotor *m = AFMS.getMotor(1); //creates motor
+Adafruit_DCMotor *m1 = AFMS.getMotor(1); //hand motor
+Adafruit_DCMotor *m2 = AFMS.getMotor(2); //foot motor
 
 
 char state = 'o'; //determines whether to look for beat or not
@@ -36,7 +37,7 @@ int targetDown = -100; //target position going down
 
 
 //function to make a hit
-void beat(int pin, int st, int rt){
+void beat(Adafruit_DCMotor *m, int st, int rt){
   //this while loor runs motor up until hits encoder value 
   while(encoder0Pos < targetUp){
     n = digitalRead(encoder0PinA);
@@ -82,7 +83,7 @@ void beat(int pin, int st, int rt){
   //wait a certain amount of time before go back up
   t2 = millis();
   while(t2-t1 <= rt){ //turns motor off for length of rt
-    m->run(RELEASE); // turns motor off
+    m1->run(RELEASE); // turns motor off
     t2 = millis();
   }
   t1 = t2;
@@ -151,9 +152,14 @@ void loop() {
         beat(m1, 100, 400);
         beat(m1, 100, 400);
         beat(m1, 100, 800);
-        break;   
+        break;  
+
+      case 7: //foot and hand
+        beat(m1, st_quarter, rt_quarter); //hand
+        beat(m2, st_quarter, rt_quarter); //foot
+        break;
   
-      case 7: // don't move
+      case 8: // don't move
         Serial.print("Outside Range");
         digitalWrite(m1, LOW);
         break;
