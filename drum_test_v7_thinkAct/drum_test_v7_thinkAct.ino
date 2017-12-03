@@ -17,34 +17,44 @@ Adafruit_DCMotor *m2 = AFMS.getMotor(2); //foot motor
 
 char state = 'o'; //determines whether to look for beat or not
 
-int bpm = 60; //beats per minute, calculated using period
-float period = 1000; //length of period, found from beat detection
+int bpm = 0; //beats per minute, calculated using period
+float period = 0; //length of period, found from beat detection
 
 int t1, t2 = 0; //time variable to avoid use of delays
 
 float st_quarter, rt_quarter = 0; //strike time and rest time quarter note length from period
-int rhythm = 0; //original rhythm to play with no user input
+int rhythm = 1; //original rhythm to play with no user input
 
-int encoder0PinA = 3; //yellow wire/pin A pin
-int encoder0PinB = 4; //green wire/pin B pin
+int Aencoder0PinA = 3; //yellow wire/pin A pin
+int Aencoder0PinB = 4; //green wire/pin B pin
+int Fencoder0PinA = 5; //yellow wire/pin A pin
+int Fencoder0PinB = 6; //green wire/pin B pin
+
 int encoder0Pos = 0; //starting position of encoder
 int encoder0PinALast = LOW; //tells last state of Pin A
 int n = LOW; //current state of Pin A
 
-int targetUp = 100; //target position going up
-int targetDown = -100; //target position going down
+int targetUp = 20; //target position going up
+int targetDown = -20; //target position going down
 
+//int legTargetUp = 20; //target position going up
+//int legTargetDown = -20; //target position going down
+
+int target = 20;
 
 
 //function to make a hit
-void beat(Adafruit_DCMotor *m, int st, int rt){
-  //this while loor runs motor up until hits encoder value 
-  while(encoder0Pos < targetUp){
+void beat(Adafruit_DCMotor *m, int st, int rt, int encoder0PinA, int encoder0PinB){
+  while(encoder0Pos < target){
+    Serial.println("WHILE");
     n = digitalRead(encoder0PinA);
     if ((encoder0PinALast == LOW) && (n == HIGH)) {
+      Serial.println("IF 1");
       if (digitalRead(encoder0PinB) == LOW) {
+        Serial.println("SUB");
         encoder0Pos--;
       } else {
+        Serial.println("ADD");
         encoder0Pos++;
       }
       Serial.print (encoder0Pos);
@@ -55,16 +65,18 @@ void beat(Adafruit_DCMotor *m, int st, int rt){
     m->run(FORWARD);
   }
 
+  Serial.print("STAHP");
+  m->run(RELEASE);
+  
   //wait a certain amount of time before going down
   t2 = millis();
-  while(t2-t1 <= st){ //turns motor off for length of rt
-    m->run(RELEASE); // turns motor off
+  while(t2-t1 <= 1000){ //turns motor off for length of rt
     t2 = millis();
   }
   t1 = t2;
 
-  //this while loor runs motor down until hits encoder value 
-  while(encoder0Pos > targetDown){
+  while(encoder0Pos > -target){
+    Serial.println("NEXT WHILE");
     n = digitalRead(encoder0PinA);
     if ((encoder0PinALast == LOW) && (n == HIGH)) {
       if (digitalRead(encoder0PinB) == LOW) {
@@ -80,10 +92,11 @@ void beat(Adafruit_DCMotor *m, int st, int rt){
     m->run(BACKWARD);
   }
 
-  //wait a certain amount of time before go back up
+  m->run(RELEASE);
+  
+  //wait a certain amount of time before going down
   t2 = millis();
-  while(t2-t1 <= rt){ //turns motor off for length of rt
-    m1->run(RELEASE); // turns motor off
+  while(t2-t1 <= 1000){ //turns motor off for length of rt
     t2 = millis();
   }
   t1 = t2;
@@ -91,8 +104,14 @@ void beat(Adafruit_DCMotor *m, int st, int rt){
 
 
 void setup() {
-  Serial.begin(9600);
-  mySerial.begin(4800);
+  Serial.begin(115200);
+  mySerial.begin(14400);
+  AFMS.begin();
+
+  m1->setSpeed(150);
+
+  pinMode (Aencoder0PinA, INPUT);
+  pinMode (Aencoder0PinB, INPUT);
 }
 
 void loop() {
@@ -102,69 +121,76 @@ void loop() {
     bpm = mySerial.read();
     period = float(60000)/float(bpm);
     Serial.println("****************************");
+    Serial.println(bpm);
 
   
     st_quarter = float(.2)*float(period);
     rt_quarter = float(.8)*float(period);
-  
-    Serial.println(st_quarter);
-    Serial.println(rt_quarter);
-  
-    switch(rhythm){ //switches between 7 different rhythms depending on what variable rhythm equals
-      case 0: //quarter notes
-        //Serial.println("Case 0");
-        beat(m1, st_quarter, rt_quarter);
-        break;
-  
-      case 1: //eigth notes
-        //Serial.println("Case 1");
-        beat(m1, st_quarter/2, rt_quarter/2);
-        break;
-  
-      case 2: //sixteenth notes
-        //Serial.println("Case 2");
-        beat(m1, st_quarter/4, rt_quarter/4);
-        break;
-  
-      case 3: //eigth+sixteenth
-        beat(m1, 100, 400);
-        beat(m1, 50, 200);
-        break;
-  
-      case 4: //eighth+sixteenth+sixteenth
-        beat(m1, 100, 400);
-        beat(m1, 50, 200);
-        beat(m1, 50, 200);     
-        break;
-  
-      case 5://e+s+s+e+s
-        beat(m1, 100, 400);
-        beat(m1, 50, 200);
-        beat(m1, 50, 200); 
-        beat(m1, 100, 400);
-        beat(m1, 50, 200);
-        break;
-  
-      case 6://1++3+4
-        beat(m1, 100, 400);
-        beat(m1, 100, 800);
-        beat(m1, 100, 400);
-        beat(m1, 100, 400);
-        beat(m1, 100, 400);
-        beat(m1, 100, 800);
-        break;  
 
-      case 7: //foot and hand
-        beat(m1, st_quarter, rt_quarter); //hand
-        beat(m2, st_quarter, rt_quarter); //foot
-        break;
+    rhythm = 0;
+  }
+
   
-      case 8: // don't move
-        Serial.print("Outside Range");
-        digitalWrite(m1, LOW);
-        break;
+  Serial.println(st_quarter);
+  Serial.println(rt_quarter);
+
+  //beat(m1, st_quarter, rt_quarter,  Aencoder0PinA, Aencoder0PinB);
+
+  
+  switch(rhythm){ //switches between 7 different rhythms depending on what variable rhythm equals
+    case 0: //quarter notes
+      Serial.println("Case 0");
+      beat(m1, st_quarter, rt_quarter,  Aencoder0PinA, Aencoder0PinB);
+      break;
+//  
+//    case 1: //eigth notes
+//      //Serial.println("Case 1");
+//      beat(m1, st_quarter/2, rt_quarter/2, Aencoder0PinA, Aencoder0PinB);
+//      break;
+//  
+//    case 2: //sixteenth notes
+//      //Serial.println("Case 2");
+//      beat(m1, st_quarter/4, rt_quarter/4, Aencoder0PinA, Aencoder0PinB);
+//      break;
+//  
+//    case 3: //eigth+sixteenth
+//      beat(m1, 100, 400, Aencoder0PinA, Aencoder0PinB);
+//      beat(m1, 50, 200, Aencoder0PinA, Aencoder0PinB);
+//      break;
+//  
+//    case 4: //eighth+sixteenth+sixteenth
+//      beat(m1, 100, 400, Aencoder0PinA, Aencoder0PinB);
+//      beat(m1, 50, 200, Aencoder0PinA, Aencoder0PinB);
+//      beat(m1, 50, 200, Aencoder0PinA, Aencoder0PinB);     
+//      break;
+//  
+//    case 5://e+s+s+e+s
+//      beat(m1, 100, 400, Aencoder0PinA, Aencoder0PinB);
+//      beat(m1, 50, 200, Aencoder0PinA, Aencoder0PinB);
+//      beat(m1, 50, 200, Aencoder0PinA, Aencoder0PinB); 
+//      beat(m1, 100, 400, Aencoder0PinA, Aencoder0PinB);
+//      beat(m1, 50, 200, Aencoder0PinA, Aencoder0PinB);
+//      break;
+//  
+//    case 6://1++3+4
+//      beat(m1, 100, 400, Aencoder0PinA, Aencoder0PinB);
+//      beat(m1, 100, 800, Aencoder0PinA, Aencoder0PinB);
+//      beat(m1, 100, 400, Aencoder0PinA, Aencoder0PinB);
+//      beat(m1, 100, 400, Aencoder0PinA, Aencoder0PinB);
+//      beat(m1, 100, 400, Aencoder0PinA, Aencoder0PinB);
+//      beat(m1, 100, 800, Aencoder0PinA, Aencoder0PinB);
+//      break;  
+//
+//    case 7: //foot and hand
+//      beat(m1, st_quarter, rt_quarter, Aencoder0PinA, Aencoder0PinB); //hand
+//      beat(m2, st_quarter, rt_quarter, Fencoder0PinA, Fencoder0PinB); //foot
+//      break;
+//  
+//    case 8: // don't move
+//      Serial.print("Outside Range");
+//      digitalWrite(m1, LOW);
+//      break;
         
-    }
   }
 }
 

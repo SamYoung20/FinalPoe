@@ -1,7 +1,11 @@
 /**
- * Takes input from circuit to determine speed of metronome and beats along to it
- * Preset rhythms, some random logic to determine which rhythm to play
+ * Takes input from circuit to determine speed of metronome/song.
+ * Sends bpm to Think/Act Arduino.
+ * To manually find beat, sned 'f' to the serial.
+ * Serial displays information about each listen then displays bpm
  */
+
+ //Set up software serial between Arduinos
 #include <SoftwareSerial.h>
 
 SoftwareSerial mySerial(11, 10);
@@ -10,7 +14,7 @@ SoftwareSerial mySerial(11, 10);
 char state = 'o'; //determines whether to look for beat or not
 
 const int beat_pin = 2; //looks for pulse to find period fo beat
-int bpm = 60;
+int bpm = 60; //initial beats per minute value
 
 float period = 1000; //length of period, found from beat detection
 
@@ -20,7 +24,7 @@ int t1, t2 = 0; //time variable to avoid use of delays
 
 int lis = 2; //how many beats should listen for
 
-
+//takes absolute value of a long
 void absolute(long x){
   if(x<0){
     x = -x;
@@ -48,25 +52,26 @@ void findPeriod(){
 
     period = period + dur_on + dur_off; //total period (all together) to allow for averaging
     Serial.println(period);
-    avgPeriod = period/long(i); //averags to find period
+    avgPeriod = period/long(i); //averages to find period
     Serial.println(avgPeriod);
 
   }
 
+  //finds the correct period and bpm from the reading
   period = avgPeriod/1000.0; //finds period
   Serial.println(period);
   Serial.println(period, 7);
-  bpm = 60000/period;
-  bpm = int(bpm);
-  period = float(60000)/float(bpm);
+  bpm = 60000/period; //finds bpm with read period
+  bpm = int(bpm); //turns bpm to int since bpm is never not an int
+  period = float(60000)/float(bpm); //finds proper period from corrected bpm
   Serial.println(period);
   
 }
 
 void setup() {
+  //set up Serial and software Serial
   Serial.begin(9600);
-
-  mySerial.begin(4800);
+  mySerial.begin(14400);
 }
 
 void loop() {
@@ -75,14 +80,15 @@ void loop() {
     state = Serial.read(); //0 or 1
     Serial.write(state);
     if(state == 'f'){ //finds beat if type 'f'
-      findPeriod();
-      bpm = 60000/period;
+      findPeriod(); //finds function to find period
+      bpm = 60000/period; //finds the bpm, easier to compare with bpm
       Serial.println(bpm);
       mySerial.write(bpm); //Software serial sends ints, not longs
                            //send bpm, convert back to period in think/act
     }
   } 
 
+  //waits for 10 seconds, then finds period and sends to other Arduino again. Loops! Continuously updates! 
   t1 = millis();
   t2 = millis();
   while(t2-t1 <= 10000){
@@ -94,8 +100,6 @@ void loop() {
   mySerial.write(bpm);
 
   Serial.println(bpm);
-  //bpm = 60000/period;
-
 }
 
 
