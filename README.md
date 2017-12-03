@@ -39,5 +39,16 @@ Gretchen, Elena, Emma, Colvin, and Sam's Final POE project
   
   
 #### *Version 7*
-  This version has updated Think code so that it can drive the encoder motor **This code works with the third version of the mechanical system.**
+  This version has updated Think code so that it can drive the encoder motor **This code works with the third version of the mechanical system.** *THIS DOES NOT WORK YET*
   
+  
+  
+
+#### *Version 8*
+  This version has updated Think code so that it can drive the new motor without encoder **This code works with the third version of the mechanical system.**
+  
+  
+  
+  
+  ### Running Instruction
+  To run any sense code, type f into serial, this will find the beat. 
