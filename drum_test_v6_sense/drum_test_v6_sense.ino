@@ -10,6 +10,7 @@
 
 SoftwareSerial mySerial(11, 10);
 
+int POT = A0;
 
 char state = 'o'; //determines whether to look for beat or not
 
@@ -44,11 +45,21 @@ void findPeriod(){
     
     long dur_on = pulseIn(beat_pin, HIGH, 3000000); //duration beat sounds
     absolute(dur_on);
+    while(dur_on < 100000){
+      Serial.println("dur too low");
+      Serial.println(dur_on);
+      long dur_on = pulseIn(beat_pin, HIGH, 3000000); //duration beat sounds
+      absolute(dur_on);
+    }
     Serial.println(dur_on);
     
     long dur_off = pulseIn(beat_pin, LOW, 3000000); //duration between beats
     absolute(dur_off);
     Serial.println(dur_off);
+    while(dur_off < 100000){
+      long dur_off = pulseIn(beat_pin, LOW, 3000000); //duration beat sounds
+      absolute(dur_on);
+    }
 
     period = period + dur_on + dur_off; //total period (all together) to allow for averaging
     Serial.println(period);
@@ -72,9 +83,14 @@ void setup() {
   //set up Serial and software Serial
   Serial.begin(9600);
   mySerial.begin(14400);
+  pinMode(POT, INPUT);
 }
 
 void loop() {
+
+//  Serial.print("++++++++++");
+//  Serial.print(analogRead(POT));
+//  Serial.print("++++++++++");
 
   if(Serial.available() > 0) { //checks for input from Serial
     state = Serial.read(); //0 or 1
@@ -87,19 +103,20 @@ void loop() {
                            //send bpm, convert back to period in think/act
     }
   } 
-
-  //waits for 10 seconds, then finds period and sends to other Arduino again. Loops! Continuously updates! 
-  t1 = millis();
-  t2 = millis();
-  while(t2-t1 <= 10000){
-    t2 = millis();
-  }
-
-  findPeriod();
-  bpm = 60000/period;
-  mySerial.write(bpm);
-
-  Serial.println(bpm);
+//  else{
+//    //waits for 10 seconds, then finds period and sends to other Arduino again. Loops! Continuously updates! 
+//    t1 = millis();
+//    t2 = millis();
+//    while(t2-t1 <= 10000){
+//      t2 = millis();
+//    }
+//  
+//    findPeriod();
+//    bpm = 60000/period;
+//    mySerial.write(bpm);
+//  
+//    Serial.println(bpm);
+//  }
 }
 
 

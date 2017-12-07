@@ -19,6 +19,7 @@ Adafruit_MotorShield AFMS = Adafruit_MotorShield();
 Adafruit_DCMotor *m1 = AFMS.getMotor(1); //hand motor
 Adafruit_DCMotor *m2 = AFMS.getMotor(2); //foot motor
 
+int POT = A0;
 
 int bpm = 0; //beats per minute, calculated using period
 float period = 0; //length of period, found from beat detection
@@ -49,6 +50,24 @@ void beat(Adafruit_DCMotor *m, int st, int rt){
   t1 = t2;
 }
 
+//function to run the foot
+void foot(Adafruit_DCMotor *m, int up, int down, int rt){
+  while(analogRead(POT)<up){ //while POT value is less than the upper bound
+    m->run(FORWARD);
+  }
+
+  //this will be what I test for calibration when we get there
+//  t2 = millis();
+//  while(t2-t1 <= rt){ //turns motor off for length of rt
+//    t2 = millis();
+//  }
+//  t1 = t2;
+  
+  while(analogRead(POT)>down){ //while POT value is greater than the lower bound
+    m->run(BACKWARD);
+  }
+}
+
 
 void setup() {
   //start Serials and motor shield
@@ -57,7 +76,7 @@ void setup() {
   AFMS.begin();
 
   //set initial speeds for motors
-  m1->setSpeed(75); //arm
+  m1->setSpeed(255); //arm
   m2->setSpeed(100); //foot
 
 }
@@ -79,16 +98,19 @@ void loop() {
   }
 
   
-  Serial.println(st_quarter);
-  Serial.println(rt_quarter);
+  //Serial.println(st_quarter);
+  //Serial.println(rt_quarter);
 
+//to run arm, uncomment this one
   //beat(m1, st_quarter, rt_quarter);
-  m2->run(FORWARD);
+  foot(m1, 1023, 341, rt_quarter);
+  
 
   
   switch(rhythm){ //switches between 7 different rhythms depending on what variable rhythm equals
     case 0: //quarter notes
       Serial.println("Case 0");
+      foot(m2, 1023, 0);
       //st_quarter = rt_quarter; //for foot, still messing with this
       //rt_quarter=0;
       //beat(m1, st_quarter, rt_quarter);
