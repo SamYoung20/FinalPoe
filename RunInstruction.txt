@@ -1,0 +1,24 @@
+As of 12/7/17
+
+Make sure the Arduinos are hooked between 10 and 11. One wire should be hooked to 10 on one arduino and 11 on the other and the other wire 
+vice versa. Make sure the Arduinos are grounded. If you are connecting USBs to the computer, make sure your computer is plugged in.
+Make sure your serial window is running the same bauds as they are setup to run.
+
+The drum_test_v6_sense code goes on the Arduino without the motor shield. This is the sense arduino, it is hooked to the circuit and should
+be doing the beat detection. 
+In order to detect the beat, type 'f' into the Serial.
+This code should print: "In findPeriod" when they enter the findPeriod function
+Inside the function it should print if the duration on is too low and then print the duration.
+Is should then print the duration on when it moves on to detecting duration off. It will also print
+the duration off. THese numbers are the time between the sound and the silence of beats.
+The period should then be printed, then the average period. It should print period 3 
+more times, just from various tests. It should then print the bpm. This number will be the number
+sent to the other Arduino.
+
+The drum_test_v9_thinkAct code goes on the Arduino with the motor shield. This is the code that
+directs the motor movement. Right now it is set up to beat the foot. To beat the hand,
+uncomment the line that has a comment saying, "to run arm, uncomment this one." This code should
+run when it recieves from the sense Arduino. When it recieves you will see:
+"Recieving
+*******************************
+bpm"
