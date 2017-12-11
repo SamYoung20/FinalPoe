@@ -1,40 +1,38 @@
-#include <Wire.h>
-
-#define NODE_ADDRESS 2 // Change this unique address for each I2C slave node
-#define PAYLOAD_SIZE 2 // Number of bytes  expected to be received by the master I2C node
-unsigned int data;
+#include <SoftwareSerial.h>
+unsigned int data =0;
 const int samples = 5;
 const unsigned int debounce = 350;
 const int threshold = 100;
 float rolling[samples]; // global variable will keep track of relevant samples
-
-const int wheelDia = 20;
-
 const int inp = 2;
-
 unsigned long lastTime;
-
+SoftwareSerial mySerial(11, 10);
 void setup() {
   Serial.begin(9600);
+  mySerial.begin(14400);  
   lastTime = millis();
-
-  Wire.begin(NODE_ADDRESS);  // Activate I2C network
-  Wire.onRequest(requestEvent); // Request attention of master node
 }
 
 void loop() {
+  //if(Serial.available() > 0) {                      //checks for input from Serial
+   // if(Serial.read() == 'f'){                               //finds beat if type 'f'
+        
+   // }
+  //}
   int sense = analogRead(inp);
   unsigned long revTime;
-  //Serial.println(sense);
-  if(sense < threshold && (unsigned long)(millis() - lastTime) > debounce){
+  if(sense < threshold && (unsigned long)(millis() - lastTime) > debounce){         // close to negative rail (is it a beat) and is a new beat (debounce)
     revTime = millis() - lastTime;
     lastTime = millis();
-    float freq = convertUnits(revTime);
+    float freq = convertUnits(revTime);                                             // 
     unsigned int avg = updateAverage(freq);
     data = avg;
-    //Serial.println(data);
-    printArray(rolling,5);
-    Serial.println(avg);
+    Serial.println(data);
+    mySerial.write(data); 
+    
+    //printArray(rolling,5);
+    //Serial.println(avg);
+    
     
   }
 }
@@ -86,8 +84,3 @@ void printArray(float arr[], int len){ // useful for debugging
   Serial.println("}");
 }
 
-void requestEvent()
-{
-  byte* payload = (byte*) & data;
-  Wire.write(payload,PAYLOAD_SIZE);
-}
