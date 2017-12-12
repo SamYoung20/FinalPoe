@@ -103,7 +103,7 @@ void loop() {
 
 //to run arm, uncomment this one
   //beat(m1, st_quarter, rt_quarter);
-  foot(m1, 1023, 341, rt_quarter);
+  foot(m1, 682, 341, rt_quarter);
   
 
   
