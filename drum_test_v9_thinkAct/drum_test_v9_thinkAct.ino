@@ -46,15 +46,15 @@ void setup() {
 }
 
 void loop() {
-  //if (mySerial.available() > 0) { //if serial value is input, read it
+  if (mySerial.available() > 0) { //if serial value is input, read it
     if (Serial.available())
       user_in = Serial.read();
     else
       user_in = 'o';
      
       if(user_in == 'p'){
-        //bpm = mySerial.read(); //takes bpm from sense Arduino
-        bpm = 75;
+        bpm = mySerial.read(); //takes bpm from sense Arduino
+        //bpm = 75;
         period = float(60000) / float(bpm);
         Serial.println(bpm);
   
@@ -71,7 +71,7 @@ void loop() {
       
     hand(m1, period, calibrateTime);
     //foot(m1, 1023, 341, rt_quarter);
-  //}
+  }
 }
 
 
@@ -79,7 +79,6 @@ void loop() {
 //runs motor forwards, then backwards, then waits
 void hand(Adafruit_DCMotor *m, float period, int calibrateTime) {
   float fd = 193; //determine forward time
-  Serial.println(fd);
   int bk = 62; //determine back time
   int brkTime = 40; //determine rest time
   int rt = period - fd - bk - brkTime + calibrateTime; //determine rest time
