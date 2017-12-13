@@ -54,7 +54,7 @@ void loop() {
      
       if(user_in == 'p'){
         bpm = mySerial.read(); //takes bpm from sense Arduino
-        //bpm = 75;
+
         period = float(60000) / float(bpm);
         Serial.println(bpm);
   
