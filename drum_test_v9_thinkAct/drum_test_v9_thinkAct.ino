@@ -53,8 +53,8 @@ void loop() {
       user_in = 'o';
      
       if(user_in == 'p'){
-        //bpm = mySerial.read(); //takes bpm from sense Arduino
-        bpm = 75;
+        bpm = mySerial.read(); //takes bpm from sense Arduino
+        //bpm = 113;
         period = float(60000) / float(bpm);
         Serial.println(bpm);
   
