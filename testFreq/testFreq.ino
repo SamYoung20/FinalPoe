@@ -1,5 +1,5 @@
 #include <SoftwareSerial.h>
-unsigned int data =0;
+double data =0.0;
 const int samples = 3;
 const unsigned int debounce = 350;
 const int threshold = 100;
@@ -42,7 +42,7 @@ float updateAverage(float newVal){
     sum += rolling[i];
   
   unsigned int avg = round(sum/samples);
-  return avg;
+  return avg +1;
 }
 
 float convertUnits(unsigned long input){

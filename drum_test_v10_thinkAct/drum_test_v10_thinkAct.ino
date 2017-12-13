@@ -17,7 +17,7 @@ Adafruit_MotorShield AFMS = Adafruit_MotorShield();
 
 //sets up motors
 Adafruit_DCMotor *m1 = AFMS.getMotor(1); //hand motor
-Adafruit_DCMotor *m2 = AFMS.getMotor(2); //foot motor
+Adafruit_DCMotor *m2 = AFMS.getMotor(4); //foot motor
 
 int POT = A0;
 
@@ -44,8 +44,8 @@ void setup() {
 
   //set initial speeds for motors
   //m1->setSpeed(150); //arm
-  //m1->setSpeed(150); //arm
-  m1->setSpeed(105); //foot
+  m1->setSpeed(150); //arm
+  m2->setSpeed(105); //foot
 
 }
 
@@ -76,23 +76,26 @@ void loop() {
 
 
 void loop() {
-  //if (mySerial.available() > 0) { //if serial value is input, read it
+  if (mySerial.available() > 0) { //if serial value is input, read it
     if (Serial.available()){
       user_in = Serial.read(); }
     else
       user_in = 'o';
    
       if(user_in == 'p'){
-        //bpm = mySerial.read(); //takes bpm from sense Arduino
-        bpm = 88;
+        bpm = mySerial.read(); //takes bpm from sense Arduino
+        //bpm = 57;
         Serial.println(bpm);
-        drum_status = 'g';
         period = float(60000) / float(bpm);
         rhythm = 0;
       }
 
     if (user_in == 's')
       drum_status = 's';
+
+    if (user_in == 'g'){
+      drum_status = 'g'; 
+      Serial.println("go");}
       
     //run arm and/or foot
     if(user_in == 'f'){
@@ -101,17 +104,24 @@ void loop() {
     else if(user_in == 'd'){
       calibrateTime = -5;
       Serial.println(calibrateTime);}
+    else if(user_in == 'm'){
+      calibrateTime = 20;
+      Serial.println(calibrateTime);}
+    else if(user_in == 'n'){
+      calibrateTime = -20;
+      Serial.println(calibrateTime);}
     else
       calibrateTime = 0;
   
     if (drum_status == 'g') {
       //hand(m1, period, calibrateTime);
       int ana_in = analogRead(POT);
-      Serial.println(ana_in);
+      //Serial.println(ana_in);
       foot_start = millis();
-      //foot(m1, period, calibrateTime); }
+      //foot(m2, period, calibrateTime); 
       hand(m1, period, calibrateTime); 
       }
+}
 }
 
 
@@ -219,7 +229,7 @@ void foot(Adafruit_DCMotor *m, float period, int calibrateTime) {
   
   t1 = millis();
   t2 = millis();
-  int foot_delay_time = period-foot_time;
+  int foot_delay_time = period-foot_time+calibrateTime;
   Serial.println(foot_delay_time);
   while (t2 - t1 <= foot_delay_time) { //turns motor off for length of rt
     m->run(RELEASE);

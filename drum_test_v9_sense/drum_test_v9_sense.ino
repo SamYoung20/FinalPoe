@@ -34,7 +34,7 @@ void setup() {
 }
 
 void loop() {
-  Serial.println(analogRead(beat_pin));
+  Serial.println(analogRead(POT));
   //if(Serial.available() > 0) {                      //checks for input from Serial
     //state = Serial.read();
     //Serial.write(state);
@@ -59,7 +59,7 @@ void absolute(long x){                              //takes absolute value of a 
 void findPeriod(){                                   //function to find period from beat detection
   start_time = millis();
   long avgPeriod = 0;
-  int sense = analogRead(beat_pin);
+  int sense = analogRead(POT);
   Serial.println(sense);
   if(sense < threshold && (unsigned long)(micros() - lastTime) > debounce){
     for(int i = 1; i<=lis; i++){
