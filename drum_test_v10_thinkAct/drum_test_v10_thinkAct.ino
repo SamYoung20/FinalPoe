@@ -32,6 +32,7 @@ int rhythm = 1; //original rhythm to play with no user input
 int calibrateTime = 1;
 
 char user_in = 'o';
+char drum_status = 's';
 
 void setup() {
   //start Serials and motor shield
@@ -40,45 +41,56 @@ void setup() {
   AFMS.begin();
 
   //set initial speeds for motors
-  m1->setSpeed(150); //arm
-  m2->setSpeed(100); //foot
+  //m1->setSpeed(150); //arm
+  //m1->setSpeed(150); //arm
+  m1->setSpeed(70); //foot
 
 }
 
 void loop() {
-  if (mySerial.available() > 0) { //if serial value is input, read it
-    if (Serial.available())
-      user_in = Serial.read();
+  //if (mySerial.available() > 0) { //if serial value is input, read it
+    if (Serial.available()){
+      user_in = Serial.read(); }
     else
       user_in = 'o';
-     
+   
       if(user_in == 'p'){
-        bpm = mySerial.read(); //takes bpm from sense Arduino
-
-        period = float(60000) / float(bpm);
+        //bpm = mySerial.read(); //takes bpm from sense Arduino
+        bpm = 90;
         Serial.println(bpm);
-  
+        drum_status = 'g';
+        period = float(60000) / float(bpm);
         rhythm = 0;
       }
-    
+
+    if (user_in == 's')
+      drum_status = 's';
+      
     //run arm and/or foot
-    if(user_in == 'f')
+    if(user_in == 'f'){
       calibrateTime = 5;
-    else if(user_in == 'd')
+      Serial.println(calibrateTime);}
+    else if(user_in == 'd'){
       calibrateTime = -5;
+      Serial.println(calibrateTime);}
     else
       calibrateTime = 0;
-      
-    hand(m1, period, calibrateTime);
-    //foot(m1, 1023, 341, rt_quarter);
-  }
-}
 
+  int ana_in = analogRead(POT);
+  Serial.println(ana_in);
+  
+    if (drum_status == 'g') {
+      //hand(m1, period, calibrateTime);
+      ana_in = analogRead(POT);
+      Serial.println(ana_in);
+      foot(m1, period, calibrateTime); }
+  //}
+}
 
 //function to make a hit, params: motor, strike and rest time,
 //runs motor forwards, then backwards, then waits
 void hand(Adafruit_DCMotor *m, float period, int calibrateTime) {
-  float fd = 193; //determine forward time
+  float fd = 253; //determine forward time
   int bk = 62; //determine back time
   int brkTime = 40; //determine rest time
   int rt = period - fd - bk - brkTime + calibrateTime; //determine rest time
@@ -87,6 +99,7 @@ void hand(Adafruit_DCMotor *m, float period, int calibrateTime) {
   //t1 and t2 used to avoid use of delay
   t2 = millis();
   while (t2 - t1 <= fd) { //turns motor on for length of fd
+    m->setSpeed(130);
     m->run(FORWARD); //turns motor on
     t2 = millis();
   }
@@ -101,6 +114,7 @@ void hand(Adafruit_DCMotor *m, float period, int calibrateTime) {
   
   t2 = millis();
   while (t2 - t1 <= bk) { //turns motor backwards for length of bk
+    m->setSpeed(160);
     m->run(BACKWARD); // turns motor backwards
     t2 = millis();
   }
@@ -115,24 +129,51 @@ void hand(Adafruit_DCMotor *m, float period, int calibrateTime) {
 }
 
 //function to run the foot
-/*
-void foot(Adafruit_DCMotor *m, int up, int down, int rt) {
-  while (analogRead(POT) < up) { //while POT value is less than the upper bound
-    m->run(FORWARD);
-  }
 
-  //this will be what I test for calibration when we get there
-  //  t2 = millis();
-  //  while(t2-t1 <= rt){ //turns motor off for length of rt
-  //    t2 = millis();
-  //  }
-  //  t1 = t2;
+void foot(Adafruit_DCMotor *m, float period, int calibrateTime) {
+  int up = 200;
+  int down = 630;
 
-  while (analogRead(POT) > down) { //while POT value is greater than the lower bound
-    m->run(BACKWARD);
+  int ana_in = analogRead(POT);
+  Serial.println(ana_in);
+
+  int foot_start = millis();
+  t2 = millis();
+  while (analogRead(POT) < down) { //turns motor off for length of rt
+    ana_in = analogRead(POT);
+  Serial.println(ana_in);
+    m1->run(FORWARD);
+    t2 = millis();
   }
+  t1 = t2;
+
+  t2 = millis();
+  while (t2 - t1 <= 500) { //turns motor off for length of rt
+    m1->run(RELEASE);
+    t2 = millis();
+  }
+  t1 = t2;
+
+  t2 = millis();
+  while (analogRead(POT) > up) { //turns motor off for length of rt
+    ana_in = analogRead(POT);
+  Serial.println(ana_in);
+    m1->run(BACKWARD);
+    t2 = millis();
+  }
+  t1 = t2;
+
+  int foot_end = millis();
+  int foot_time = foot_end-foot_start;
+  
+  t2 = millis();
+  while (t2 - t1 <= period-foot_time) { //turns motor off for length of rt
+    m1->run(RELEASE);
+    t2 = millis();
+  }
+  t1 = t2;
 }
-*/
+
 
 
 

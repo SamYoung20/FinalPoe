@@ -40,38 +40,39 @@ void setup() {
   AFMS.begin();
 
   //set initial speeds for motors
-  m1->setSpeed(150); //arm
-  m2->setSpeed(100); //foot
+  //m1->setSpeed(150); //arm
+  m1->setSpeed(100); //foot
 
 }
 
 void loop() {
-  if (mySerial.available() > 0) { //if serial value is input, read it
-    if (Serial.available())
-      user_in = Serial.read();
+  //if (mySerial.available() > 0) { //if serial value is input, read it
+    if (Serial.available()){
+      user_in = Serial.read(); }
     else
       user_in = 'o';
-     
+   
       if(user_in == 'p'){
-        bpm = mySerial.read(); //takes bpm from sense Arduino
-
-        period = float(60000) / float(bpm);
+        //bpm = mySerial.read(); //takes bpm from sense Arduino
+        bpm = 90;
         Serial.println(bpm);
-  
+        period = float(60000) / float(bpm);
         rhythm = 0;
       }
     
     //run arm and/or foot
-    if(user_in == 'f')
+    if(user_in == 'f'){
       calibrateTime = 5;
-    else if(user_in == 'd')
+      Serial.println(calibrateTime);}
+    else if(user_in == 'd'){
       calibrateTime = -5;
+      Serial.println(calibrateTime);}
     else
       calibrateTime = 0;
-      
-    hand(m1, period, calibrateTime);
-    //foot(m1, 1023, 341, rt_quarter);
-  }
+
+    //hand(m1, period, calibrateTime);
+    foot(m1, period, calibrateTime);
+  //}
 }
 
 
@@ -115,24 +116,46 @@ void hand(Adafruit_DCMotor *m, float period, int calibrateTime) {
 }
 
 //function to run the foot
-/*
-void foot(Adafruit_DCMotor *m, int up, int down, int rt) {
-  while (analogRead(POT) < up) { //while POT value is less than the upper bound
+
+void foot(Adafruit_DCMotor *m, float period, int calibrateTime) {
+  int jamTime = 300; //stops foot from getting stuck in while loops
+  
+  int up = 600;
+  int down = 300;
+  int rt = 30; //time foot is pressed down
+  //int restTime = period - 200; //will depend on the period 
+  int restTime = 500;
+
+  t2 = millis();
+  while (analogRead(POT) < up && (t2 - t1) <= jamTime) { //turns motor off for length of rt
     m->run(FORWARD);
+    t2 = millis();
   }
+  t1 = t2;
 
-  //this will be what I test for calibration when we get there
-  //  t2 = millis();
-  //  while(t2-t1 <= rt){ //turns motor off for length of rt
-  //    t2 = millis();
-  //  }
-  //  t1 = t2;
+  t2 = millis();
+  while (t2 - t1 <= rt) { //turns motor off for length of rt
+    m->run(RELEASE);
+    t2 = millis();
+  }
+  t1 = t2;
 
-  while (analogRead(POT) > down) { //while POT value is greater than the lower bound
+  t2 = millis();
+  while (analogRead(POT) > down && (t2 - t1) <= jamTime) { //turns motor off for length of rt
     m->run(BACKWARD);
+    t2 = millis();
   }
+  t1 = t2;
+
+  t2 = millis();
+  while (t2 - t1 <= restTime) { //turns motor off for length of rt
+    m->run(RELEASE);
+    t2 = millis();
+  }
+  t1 = t2;
+  
 }
-*/
+
 
 
 
