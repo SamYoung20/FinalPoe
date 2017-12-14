@@ -50,5 +50,11 @@ Gretchen, Elena, Emma, Colvin, and Sam's Final POE project
   
   
   
+#### *Version 9: Think/Act*
+  This version has updated Think code with the POT for the foot and starts to investigate manual calibration. The Sense code starts to investigate analogIn() instead of pulseIn(). **This code works with the third version of the mechanical system.**
+  
+  
+  
+  
   ### Running Instruction
   To run any sense code, type f into serial, this will find the beat. 
